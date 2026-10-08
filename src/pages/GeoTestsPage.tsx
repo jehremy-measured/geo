@@ -3,6 +3,7 @@ import { TopNavigation } from "../components/TopNavigation";
 import { MiaPanel } from "../components/MiaPanel";
 import { BackArrowIcon, ChevronRightIcon, LayersIcon, SearchIcon } from "../components/icons/BuildPlanIcons";
 import { HandIcon, NoEntryIcon } from "../components/icons/GeoIcons";
+import { SparkleIcon } from "../components/icons/SparkleIcon";
 import styles from "./GeoTestsPage.module.css";
 
 type TestStatus = "draft" | "scheduled" | "in-progress" | "complete";
@@ -85,7 +86,8 @@ export function GeoTestsPage() {
         <div className={styles.ctaBanner}>
           <h2 className={styles.ctaTitle}>Create a New Test</h2>
           <p className={styles.ctaSubtitle}>Find your media's true performance with Geo Designer.</p>
-          <button type="button" className={styles.ctaBtn}>
+          <button type="button" className={styles.ctaBtn} onClick={() => setMiaOpen(true)}>
+            <SparkleIcon size={16} variant="fill" />
             Get started
           </button>
         </div>
