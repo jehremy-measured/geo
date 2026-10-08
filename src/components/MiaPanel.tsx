@@ -51,6 +51,7 @@ export function MiaPanel({ open, onClose, onCreateTest }: Props) {
   const [answers, setAnswers] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [done, setDone] = useState(false);
+  const [creating, setCreating] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
@@ -66,7 +67,7 @@ export function MiaPanel({ open, onClose, onCreateTest }: Props) {
 
   useEffect(() => {
     messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, done]);
+  }, [messages, done, creating]);
 
   useEffect(() => {
     if (open && !done) inputRef.current?.focus();
@@ -90,8 +91,11 @@ export function MiaPanel({ open, onClose, onCreateTest }: Props) {
   };
 
   const handleCreateTest = () => {
-    onCreateTest(answers);
-    onClose();
+    setCreating(true);
+    setTimeout(() => {
+      onCreateTest(answers);
+      onClose();
+    }, 1400);
   };
 
   if (!open) return null;
@@ -129,9 +133,18 @@ export function MiaPanel({ open, onClose, onCreateTest }: Props) {
                 <span className={styles.reviewValue}>{answers[i]}</span>
               </div>
             ))}
-            <button type="button" className={styles.createBtn} onClick={handleCreateTest}>
-              Create Test
-            </button>
+            {creating ? (
+              <div className={styles.loadingRow}>
+                <span className={styles.loadingDot} />
+                <span className={styles.loadingDot} />
+                <span className={styles.loadingDot} />
+                <span className={styles.loadingText}>Creating your test…</span>
+              </div>
+            ) : (
+              <button type="button" className={styles.createBtn} onClick={handleCreateTest}>
+                Create Test
+              </button>
+            )}
           </div>
         )}
       </div>
