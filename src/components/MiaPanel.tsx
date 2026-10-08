@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckIcon } from "./icons/BuildPlanIcons";
 import { CloseIcon } from "./icons/CloseIcon";
+import { SendIcon } from "./icons/SendIcon";
 import { SparkleIcon } from "./icons/SparkleIcon";
 import styles from "./MiaPanel.module.css";
 
@@ -8,11 +9,12 @@ type Message = { id: string; role: "mia" | "user"; text: string };
 
 type QuestionOption = { id: string; label: string; desc: string };
 
-type Question = { label: string; prompt: string; options: QuestionOption[] };
+type Question = { label: string; prompt: string; options?: QuestionOption[] };
 
-/** The guided intake flow for setting up a new geo test -- each question is a numbered-option
- * card (matching the MPO Mia flow's pattern) plus a free-text "Something else" fallback for
- * anything the presets don't cover. */
+/** The guided intake flow for setting up a new geo test. Only the first question (the overall
+ * objective) uses MPO's numbered-option-card pattern -- the rest are plain free-text questions,
+ * since campaign names, segments, dates, and markets vary too much per brand to usefully
+ * enumerate as presets. */
 const QUESTIONS: Question[] = [
   {
     label: "Objective",
@@ -35,42 +37,10 @@ const QUESTIONS: Question[] = [
       },
     ],
   },
-  {
-    label: "Campaigns",
-    prompt: "Which ad campaigns should we focus on?",
-    options: [
-      { id: "single", label: "A single campaign", desc: "Test just one campaign" },
-      { id: "channel", label: "A full channel", desc: "Include every campaign in that channel" },
-      { id: "few", label: "A few selected campaigns", desc: "Pick out specific campaigns to test" },
-    ],
-  },
-  {
-    label: "Segment",
-    prompt: "Which customer segment is this about?",
-    options: [
-      { id: "new", label: "New shoppers", desc: "First-time visitors or buyers" },
-      { id: "existing", label: "Existing buyers", desc: "Customers who've purchased before" },
-      { id: "all", label: "All shoppers", desc: "No segment restriction" },
-    ],
-  },
-  {
-    label: "Deadline",
-    prompt: "What date do you need the answer by?",
-    options: [
-      { id: "2weeks", label: "Within 2 weeks", desc: "A quick read" },
-      { id: "month", label: "Before end of month", desc: "Standard testing window" },
-      { id: "key-date", label: "Before a key date", desc: "e.g. a launch or holiday push" },
-    ],
-  },
-  {
-    label: "Excluded markets",
-    prompt: "Which markets should we leave out?",
-    options: [
-      { id: "none", label: "None — include all markets", desc: "No exclusions" },
-      { id: "one", label: "One specific market", desc: "Leave out a single city or region" },
-      { id: "country", label: "A whole country", desc: "Exclude an entire country" },
-    ],
-  },
+  { label: "Campaigns", prompt: "Which ad campaigns should we focus on?" },
+  { label: "Segment", prompt: "Which customer segment is this about?" },
+  { label: "Deadline", prompt: "What date do you need the answer by?" },
+  { label: "Excluded markets", prompt: "Which markets should we leave out?" },
 ];
 
 type Props = {
@@ -84,9 +54,11 @@ export function MiaPanel({ open, onClose }: Props) {
   const [answers, setAnswers] = useState<string[]>([]);
   const [choice, setChoice] = useState<string | null>(null);
   const [otherText, setOtherText] = useState("");
+  const [draft, setDraft] = useState("");
   const [done, setDone] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const otherInputRef = useRef<HTMLInputElement>(null);
+  const draftInputRef = useRef<HTMLTextAreaElement>(null);
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -103,17 +75,21 @@ export function MiaPanel({ open, onClose }: Props) {
   }, [messages, done, choice]);
 
   useEffect(() => {
-    if (!open || done) return;
+    if (open && !done && step > 0) draftInputRef.current?.focus();
+  }, [open, done, step]);
+
+  useEffect(() => {
+    if (!open || done || step !== 0) return;
+    const options = QUESTIONS[0].options!;
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
       const digit = Number(e.key);
       if (!Number.isInteger(digit) || digit < 1) return;
-      const opts = QUESTIONS[step].options;
-      if (digit <= opts.length) {
+      if (digit <= options.length) {
         e.preventDefault();
-        setChoice(opts[digit - 1].id);
-      } else if (digit === opts.length + 1) {
+        setChoice(options[digit - 1].id);
+      } else if (digit === options.length + 1) {
         e.preventDefault();
         otherInputRef.current?.focus();
       }
@@ -122,16 +98,12 @@ export function MiaPanel({ open, onClose }: Props) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, done, step]);
 
-  const handleNext = () => {
-    if (!choice) return;
-    const q = QUESTIONS[step];
-    const answerText = choice === "other" ? otherText.trim() : q.options.find((o) => o.id === choice)!.label;
-    if (!answerText) return;
-
-    setMessages((prev) => [...prev, { id: `u-${step}`, role: "user", text: answerText }]);
-    setAnswers((prev) => [...prev, answerText]);
+  const submitAnswer = (text: string) => {
+    setMessages((prev) => [...prev, { id: `u-${step}`, role: "user", text }]);
+    setAnswers((prev) => [...prev, text]);
     setChoice(null);
     setOtherText("");
+    setDraft("");
 
     if (step < QUESTIONS.length - 1) {
       const next = step + 1;
@@ -143,9 +115,23 @@ export function MiaPanel({ open, onClose }: Props) {
     }
   };
 
+  const handleChoiceNext = () => {
+    if (!choice) return;
+    const options = QUESTIONS[0].options!;
+    const answerText = choice === "other" ? otherText.trim() : options.find((o) => o.id === choice)!.label;
+    if (!answerText) return;
+    submitAnswer(answerText);
+  };
+
+  const handleSend = () => {
+    const text = draft.trim();
+    if (!text) return;
+    submitAnswer(text);
+  };
+
   if (!open) return null;
 
-  const activeQuestion = QUESTIONS[step];
+  const onFirstQuestion = step === 0;
 
   return (
     <aside className={styles.panel}>
@@ -172,10 +158,10 @@ export function MiaPanel({ open, onClose }: Props) {
           ),
         )}
 
-        {!done && (
+        {!done && onFirstQuestion && (
           <div className={styles.turn}>
             <div className={styles.methods}>
-              {activeQuestion.options.map((opt, i) => (
+              {QUESTIONS[0].options!.map((opt, i) => (
                 <button
                   key={opt.id}
                   type="button"
@@ -195,7 +181,7 @@ export function MiaPanel({ open, onClose }: Props) {
                 }`}
               >
                 <div className={styles.methodIcon}>
-                  {choice === "other" ? <CheckIcon size={14} /> : activeQuestion.options.length + 1}
+                  {choice === "other" ? <CheckIcon size={14} /> : QUESTIONS[0].options!.length + 1}
                 </div>
                 <input
                   ref={otherInputRef}
@@ -215,7 +201,7 @@ export function MiaPanel({ open, onClose }: Props) {
                 type="button"
                 className={`${styles.btn} ${styles.btnPrimary}`}
                 disabled={!choice || (choice === "other" && !otherText.trim())}
-                onClick={handleNext}
+                onClick={handleChoiceNext}
               >
                 Next
               </button>
@@ -237,6 +223,39 @@ export function MiaPanel({ open, onClose }: Props) {
           </div>
         )}
       </div>
+
+      {!done && !onFirstQuestion && (
+        <div className={styles.composer}>
+          <div className={styles.composerBox}>
+            <textarea
+              ref={draftInputRef}
+              className={styles.composerInput}
+              placeholder="Type your answer…"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              rows={2}
+            />
+            <div className={styles.composerToolbar}>
+              <span className={styles.composerSpacer} />
+              <button
+                type="button"
+                className={styles.sendIconBtn}
+                disabled={!draft.trim()}
+                onClick={handleSend}
+                aria-label="Send"
+              >
+                <SendIcon size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
