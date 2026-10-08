@@ -152,74 +152,143 @@
   background: var(--gray-900);
 }
 
-.composer {
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--gray-300-stroke);
-  background: var(--gray-000);
+.turn {
+  width: 100%;
+  margin-top: 4px;
 }
 
-.composerBox {
+.methods {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: var(--gray-000);
-  border: 1px solid var(--blue-300);
+  border: 1px solid var(--gray-300-stroke);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 6px rgba(53, 67, 88, 0.15);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+  background: var(--gray-000);
 }
 
-.composerBox:focus-within {
-  border-color: var(--blue-700);
-  box-shadow: 0 1px 6px rgba(47, 95, 189, 0.2);
-}
-
-.composerInput {
-  width: 100%;
-  min-width: 0;
-  min-height: 40px;
-  max-height: 120px;
-  padding: 10px 12px 0;
-  font-family: var(--font-inter);
-  font-size: 14px;
-  color: var(--gray-1000);
-  background: transparent;
-  border: none;
-  resize: none;
-}
-
-.composerInput:focus {
-  outline: none;
-}
-
-.composerToolbar {
+.methodCard {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px 8px;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-300-stroke);
+  background: var(--gray-000);
 }
 
-.composerSpacer {
-  flex: 1;
+.methodCard:last-child {
+  border-bottom: none;
 }
 
-.sendIconBtn {
+.methodCard:hover {
+  background: var(--gray-100);
+}
+
+.methodCardSelected {
+  background: var(--blue-100);
+}
+
+.methodCardSelected:hover {
+  background: var(--blue-100);
+}
+
+.methodIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: var(--blue-100);
+  color: var(--blue-700);
+  font-size: 12.5px;
+  font-weight: 400;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: var(--gray-000);
-  background: var(--blue-600);
-  border-radius: var(--radius-sm);
 }
 
-.sendIconBtn:not(:disabled):hover {
+.methodCardSelected .methodIcon {
   background: var(--blue-700);
+  color: var(--gray-000);
 }
 
-.sendIconBtn:disabled {
-  color: var(--gray-600);
+.methodCard h4 {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-1000);
+}
+
+.methodCard p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--gray-800);
+  line-height: 1.35;
+}
+
+.otherOptionCard {
+  cursor: text;
+}
+
+.otherOptionInput {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-inter);
+  font-size: 13px;
+  color: var(--gray-1000);
+  background: transparent;
+  border: none;
+}
+
+.otherOptionInput:focus {
+  outline: none;
+}
+
+.otherOptionInput::placeholder {
+  color: var(--gray-500);
+}
+
+.turnActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-400);
+  color: var(--gray-1000);
+  background: var(--gray-000);
+}
+
+.btn:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-500);
+}
+
+.btnPrimary {
+  color: var(--gray-000);
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+}
+
+.btnPrimary:hover {
+  background: #254f9e;
+  border-color: #254f9e;
+}
+
+.btnPrimary:disabled {
   background: var(--gray-300);
+  border-color: var(--gray-300);
+  color: var(--gray-500);
   cursor: not-allowed;
 }
