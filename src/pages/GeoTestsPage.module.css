@@ -1,0 +1,365 @@
+.page {
+  min-height: 100vh;
+  background: var(--gray-000);
+}
+
+.body {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--gray-300-stroke);
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--orange-600);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--blue-700);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.learnMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-1000);
+  background: var(--gray-000);
+  border: 1px solid var(--gray-400);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.learnMoreBtn:hover {
+  background: var(--gray-100);
+}
+
+.ctaBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+  margin-bottom: 20px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, #5a85d6 0%, #8fb0e8 100%);
+  text-align: center;
+}
+
+.ctaTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gray-000);
+}
+
+.ctaSubtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--gray-000);
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 20px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-000);
+  background: var(--gray-1000);
+  border-radius: var(--radius-sm);
+}
+
+.ctaBtn:hover {
+  background: var(--gray-900);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 16px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gray-1000);
+}
+
+.statLabel {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray-800);
+}
+
+.listCard {
+  border-radius: var(--radius-lg);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.filterTabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filterTab {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.filterTab:hover {
+  background: var(--gray-100);
+}
+
+.filterTabActive {
+  color: var(--blue-700);
+  background: var(--blue-100);
+}
+
+.filterTabActive:hover {
+  background: var(--blue-100);
+}
+
+.search {
+  position: relative;
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+}
+
+.search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 36px;
+  font-size: 14px;
+  color: var(--gray-1000);
+  background: var(--gray-100);
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.search input::placeholder {
+  color: var(--gray-600);
+}
+
+.search input:focus {
+  outline: 2px solid var(--blue-200);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.table th {
+  text-align: left;
+  padding: 16px;
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--orange-600);
+  color: var(--gray-1000);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 16px;
+  border-top: 1px solid var(--gray-300-stroke);
+  vertical-align: middle;
+}
+
+.table th:last-child,
+.table td:last-child {
+  text-align: right;
+}
+
+.testNameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.testNameLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue-700);
+  text-decoration: none;
+}
+
+.testNameLink:hover {
+  text-decoration: underline;
+}
+
+.testId {
+  font-size: 12.5px;
+  color: var(--gray-800);
+}
+
+.contributionCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-800);
+}
+
+.contributionCell svg {
+  color: var(--blue-600);
+}
+
+.typeCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-900);
+}
+
+.typeCell svg {
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+
+.datesCell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.datesLabel {
+  color: var(--gray-900);
+  white-space: nowrap;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gray-300);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--blue-700);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.statusComplete {
+  color: var(--green-800);
+  background: var(--green-100);
+}
+
+.statusInProgress {
+  color: var(--blue-700);
+  background: var(--blue-100);
+}
+
+.statusDraft {
+  color: var(--gray-800);
+  background: var(--gray-200);
+}
+
+.statusScheduled {
+  color: #8b5300;
+  background: #fff7ec;
+}
+
+.detailBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--gray-600);
+  border-radius: var(--radius-sm);
+}
+
+.detailBtn:hover {
+  background: var(--gray-200);
+  color: var(--gray-1000);
+}
