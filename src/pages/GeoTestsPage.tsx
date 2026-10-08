@@ -35,7 +35,7 @@ const STATUS_CLASS: Record<TestStatus, string> = {
   complete: styles.statusComplete,
 };
 
-const TESTS: GeoTest[] = [
+const INITIAL_TESTS: GeoTest[] = [
   {
     id: "12835",
     testName: "Pinterest Multi Tactic - WR",
@@ -56,8 +56,26 @@ export function GeoTestsPage() {
   const [miaOpen, setMiaOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]>("All");
   const [query, setQuery] = useState("");
+  const [tests, setTests] = useState<GeoTest[]>(INITIAL_TESTS);
 
-  const visibleTests = TESTS.filter((test) => {
+  const handleCreateTest = (answers: string[]) => {
+    const [objective, , , deadline] = answers;
+    const newTest: GeoTest = {
+      id: `draft-${Date.now()}`,
+      testName: objective?.length > 48 ? `${objective.slice(0, 45)}…` : objective || "New Geo Test",
+      testId: "Draft",
+      contribution: "-",
+      conversionType: "Online Orders",
+      type: "Holdout",
+      implementation: "Manual",
+      dateRangeLabel: deadline || "Not scheduled",
+      progressPct: 0,
+      status: "draft",
+    };
+    setTests((prev) => [newTest, ...prev]);
+  };
+
+  const visibleTests = tests.filter((test) => {
     if (query && !test.testName.toLowerCase().includes(query.toLowerCase())) return false;
     if (activeFilter === "All") return true;
     if (activeFilter === "In Progress") return test.status === "in-progress";
@@ -202,7 +220,7 @@ export function GeoTestsPage() {
           </table>
         </div>
       </div>
-      <MiaPanel open={miaOpen} onClose={() => setMiaOpen(false)} />
+      <MiaPanel open={miaOpen} onClose={() => setMiaOpen(false)} onCreateTest={handleCreateTest} />
       </div>
     </div>
   );

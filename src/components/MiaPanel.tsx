@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckIcon } from "./icons/BuildPlanIcons";
 import { CloseIcon } from "./icons/CloseIcon";
 import { SendIcon } from "./icons/SendIcon";
 import { SparkleIcon } from "./icons/SparkleIcon";
@@ -7,58 +6,53 @@ import styles from "./MiaPanel.module.css";
 
 type Message = { id: string; role: "mia" | "user"; text: string };
 
-type QuestionOption = { id: string; label: string; desc: string };
+type Question = { label: string; prompt: string; placeholder: string };
 
-type Question = { label: string; prompt: string; options?: QuestionOption[] };
-
-/** The guided intake flow for setting up a new geo test. Only the first question (the overall
- * objective) uses MPO's numbered-option-card pattern -- the rest are plain free-text questions,
- * since campaign names, segments, dates, and markets vary too much per brand to usefully
- * enumerate as presets. */
+/** The guided intake flow for setting up a new geo test -- each question's placeholder doubles
+ * as an example of the kind of answer Mia expects, shown until the user starts typing their own. */
 const QUESTIONS: Question[] = [
   {
     label: "Objective",
     prompt: "What would you like to learn today?",
-    options: [
-      {
-        id: "incrementality",
-        label: "Prove incrementality",
-        desc: "See if a channel or tactic is really driving sales, orders, or sign-ups vs. matched control markets",
-      },
-      {
-        id: "efficiency",
-        label: "Get a true efficiency number",
-        desc: "Turn the lift into incremental ROAS or CPO and compare it to our target",
-      },
-      {
-        id: "budget-decision",
-        label: "Make a budget decision",
-        desc: "Decide whether to cut, hold, or grow spend on a channel",
-      },
-    ],
+    placeholder:
+      "e.g. Whether YouTube is driving incremental Vans orders in the UK, or if that spend would perform better elsewhere.",
   },
-  { label: "Campaigns", prompt: "Which ad campaigns should we focus on?" },
-  { label: "Segment", prompt: "Which customer segment is this about?" },
-  { label: "Deadline", prompt: "What date do you need the answer by?" },
-  { label: "Excluded markets", prompt: "Which markets should we leave out?" },
+  {
+    label: "Campaigns",
+    prompt: "Which ad campaigns should we focus on?",
+    placeholder: "e.g. YouTube Awareness. Brand, Search, and Shopping should keep running as-is.",
+  },
+  {
+    label: "Segment",
+    prompt: "Which customer segment is this about?",
+    placeholder: "e.g. New shoppers. Existing buyers should stay out of this test.",
+  },
+  {
+    label: "Deadline",
+    prompt: "What date do you need the answer by?",
+    placeholder: "e.g. 16 November, before the holiday push.",
+  },
+  {
+    label: "Excluded markets",
+    prompt: "Which markets should we leave out?",
+    placeholder: "e.g. London should stay out. The rest of the UK can be included.",
+  },
 ];
 
 type Props = {
   open: boolean;
   onClose: () => void;
+  onCreateTest: (answers: string[]) => void;
 };
 
-export function MiaPanel({ open, onClose }: Props) {
+export function MiaPanel({ open, onClose, onCreateTest }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [choice, setChoice] = useState<string | null>(null);
-  const [otherText, setOtherText] = useState("");
   const [draft, setDraft] = useState("");
   const [done, setDone] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
-  const otherInputRef = useRef<HTMLInputElement>(null);
-  const draftInputRef = useRef<HTMLTextAreaElement>(null);
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -72,38 +66,18 @@ export function MiaPanel({ open, onClose }: Props) {
 
   useEffect(() => {
     messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, done, choice]);
+  }, [messages, done]);
 
   useEffect(() => {
-    if (open && !done && step > 0) draftInputRef.current?.focus();
-  }, [open, done, step]);
+    if (open && !done) inputRef.current?.focus();
+  }, [open, step, done]);
 
-  useEffect(() => {
-    if (!open || done || step !== 0) return;
-    const options = QUESTIONS[0].options!;
-    const onKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
-      const digit = Number(e.key);
-      if (!Number.isInteger(digit) || digit < 1) return;
-      if (digit <= options.length) {
-        e.preventDefault();
-        setChoice(options[digit - 1].id);
-      } else if (digit === options.length + 1) {
-        e.preventDefault();
-        otherInputRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, done, step]);
-
-  const submitAnswer = (text: string) => {
+  const handleSend = () => {
+    const text = draft.trim();
+    if (!text) return;
+    setDraft("");
     setMessages((prev) => [...prev, { id: `u-${step}`, role: "user", text }]);
     setAnswers((prev) => [...prev, text]);
-    setChoice(null);
-    setOtherText("");
-    setDraft("");
 
     if (step < QUESTIONS.length - 1) {
       const next = step + 1;
@@ -115,23 +89,12 @@ export function MiaPanel({ open, onClose }: Props) {
     }
   };
 
-  const handleChoiceNext = () => {
-    if (!choice) return;
-    const options = QUESTIONS[0].options!;
-    const answerText = choice === "other" ? otherText.trim() : options.find((o) => o.id === choice)!.label;
-    if (!answerText) return;
-    submitAnswer(answerText);
-  };
-
-  const handleSend = () => {
-    const text = draft.trim();
-    if (!text) return;
-    submitAnswer(text);
+  const handleCreateTest = () => {
+    onCreateTest(answers);
+    onClose();
   };
 
   if (!open) return null;
-
-  const onFirstQuestion = step === 0;
 
   return (
     <aside className={styles.panel}>
@@ -158,57 +121,6 @@ export function MiaPanel({ open, onClose }: Props) {
           ),
         )}
 
-        {!done && onFirstQuestion && (
-          <div className={styles.turn}>
-            <div className={styles.methods}>
-              {QUESTIONS[0].options!.map((opt, i) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  className={`${styles.methodCard} ${choice === opt.id ? styles.methodCardSelected : ""}`}
-                  onClick={() => setChoice(opt.id)}
-                >
-                  <div className={styles.methodIcon}>{choice === opt.id ? <CheckIcon size={14} /> : i + 1}</div>
-                  <div>
-                    <h4>{opt.label}</h4>
-                    <p>{opt.desc}</p>
-                  </div>
-                </button>
-              ))}
-              <label
-                className={`${styles.methodCard} ${styles.otherOptionCard} ${
-                  choice === "other" ? styles.methodCardSelected : ""
-                }`}
-              >
-                <div className={styles.methodIcon}>
-                  {choice === "other" ? <CheckIcon size={14} /> : QUESTIONS[0].options!.length + 1}
-                </div>
-                <input
-                  ref={otherInputRef}
-                  type="text"
-                  className={styles.otherOptionInput}
-                  placeholder="Something else…"
-                  value={otherText}
-                  onChange={(e) => {
-                    setOtherText(e.target.value);
-                    setChoice(e.target.value.trim() ? "other" : null);
-                  }}
-                />
-              </label>
-            </div>
-            <div className={styles.turnActions}>
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.btnPrimary}`}
-                disabled={!choice || (choice === "other" && !otherText.trim())}
-                onClick={handleChoiceNext}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-
         {done && (
           <div className={styles.reviewCard}>
             {QUESTIONS.map((q, i) => (
@@ -217,20 +129,20 @@ export function MiaPanel({ open, onClose }: Props) {
                 <span className={styles.reviewValue}>{answers[i]}</span>
               </div>
             ))}
-            <button type="button" className={styles.createBtn}>
+            <button type="button" className={styles.createBtn} onClick={handleCreateTest}>
               Create Test
             </button>
           </div>
         )}
       </div>
 
-      {!done && !onFirstQuestion && (
+      {!done && (
         <div className={styles.composer}>
           <div className={styles.composerBox}>
             <textarea
-              ref={draftInputRef}
+              ref={inputRef}
               className={styles.composerInput}
-              placeholder="Type your answer…"
+              placeholder={QUESTIONS[step]?.placeholder}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
