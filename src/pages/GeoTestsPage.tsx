@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TopNavigation } from "../components/TopNavigation";
+import { MiaPanel } from "../components/MiaPanel";
 import { BackArrowIcon, ChevronRightIcon, LayersIcon, SearchIcon } from "../components/icons/BuildPlanIcons";
 import { HandIcon, NoEntryIcon } from "../components/icons/GeoIcons";
 import styles from "./GeoTestsPage.module.css";
@@ -66,6 +67,7 @@ export function GeoTestsPage() {
   return (
     <div className={styles.page}>
       <TopNavigation miaOpen={miaOpen} onMiaToggle={() => setMiaOpen((v) => !v)} />
+      <div className={styles.layout}>
       <div className={styles.body}>
         <div className={styles.headerRow}>
           <h1 className={styles.title}>Geo Tests</h1>
@@ -99,7 +101,7 @@ export function GeoTestsPage() {
           </div>
         </div>
 
-        <div className={styles.listCard}>
+        <div>
           <div className={styles.toolbar}>
             <div className={styles.filterTabs}>
               {FILTERS.map((filter) => (
@@ -197,6 +199,8 @@ export function GeoTestsPage() {
             </tbody>
           </table>
         </div>
+      </div>
+      <MiaPanel open={miaOpen} onClose={() => setMiaOpen(false)} />
       </div>
     </div>
   );
